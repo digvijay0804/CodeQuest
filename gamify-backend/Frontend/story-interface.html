@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Story Challenge</title>
+  <style>
+    /* Base */
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fb;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar (same as leaderboard/index) */
+    .navbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: linear-gradient(to right, #7f5af0, #f4d35e);
+      padding: 15px 30px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      margin: 0;
+    }
+
+    /* Layout */
+    .container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .left, .right {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    /* Left panel */
+    .left {
+      background: #ffffffdd;
+      border-right: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset -2px 0 6px rgba(0,0,0,0.05);
+    }
+
+    .left h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #7f5af0;
+    }
+
+    .left h4 {
+      margin-top: 16px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    pre {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Right panel */
+    .right {
+      display: flex;
+      flex-direction: column;
+      background: #1e1e1e;
+      color: #eee;
+      border-left: 1px solid #444;
+    }
+
+    #editor {
+      flex: 1;
+      border-radius: 8px;
+      border: 1px solid #444;
+      margin-bottom: 12px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    select, button {
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    select {
+      background: #f1f1f1;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: linear-gradient(to right, #7f5af0, #f4d35e);
+      color: #fff;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #6c4ed9, #e3c34d);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: scale(0.97);
+      box-shadow: none;
+    }
+
+    #output {
+      flex: 0.5;
+      background: #111827;
+      color: #10b981;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 1px solid #333;
+      white-space: pre-wrap;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1>CodeClash – Story Challenge</h1>
+  </div>
+
+  <div class="container">
+    <!-- Left Panel -->
+    <div class="left">
+      <h2 id="title">Loading...</h2>
+      <p id="description"></p>
+      <h4>📥 Sample Input:</h4>
+      <pre id="sampleInput"></pre>
+      <h4>📤 Sample Output:</h4>
+      <pre id="sampleOutput"></pre>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right">
+      <div id="editor"># Write your code here</div>
+      <div class="controls">
+        <select id="language">
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="cpp">C++</option>
+          <option value="c">C</option>
+          <option value="js">JavaScript</option>
+        </select>
+        <button id="runBtn" type="button">▶ Run Code</button>
+        <button id="submitBtn" type="button">✅ Submit Code</button>
+        <button id="nextBtn" type="button">➡ Next Question</button>
+      </div>
+      <pre id="output"></pre>
+    </div>
+  </div>
+
+  <script>
+    let questions = [];
+    let currentIndex = 0;
+    let questionId = null;
+
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/python");
+
+    const level = localStorage.getItem("selectedDifficulty");
+
+    // Load questions
+    fetch(`http://localhost:5000/api/story/difficulty/${level}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data.length > 0) {
+          questions = data.data;
+          currentIndex = 0;
+          loadQuestion(questions[currentIndex]);
+        } else {
+          document.getElementById("title").textContent = "No questions found!";
+        }
+      });
+
+    function loadQuestion(q) {
+      questionId = q._id;
+      document.getElementById("title").textContent = q.title;
+      document.getElementById("description").textContent = q.description;
+      document.getElementById("sampleInput").textContent = q.sampleInput;
+      document.getElementById("sampleOutput").textContent = q.sampleOutput;
+      editor.setValue("# Write your code here", -1);
+      document.getElementById("output").textContent = "";
+    }
+
+    function runCode(e) {
+      e.preventDefault();
+      const code = editor.getValue();
+      const language = document.getElementById("language").value;
+
+      fetch("http://localhost:5000/api/story/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId, language, code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("output").textContent =
+          JSON.stringify(data, null, 2);
+      })
+      .catch(err => {
+        document.getElementById("output").textContent = "Error: " + err.message;
+      });
+    }
+
+    function submitCode(e) {
+      e.preventDefault();
+      const code = editor.getValue();
+      const language = document.getElementById("language").value;
+
+      fetch("http://localhost:5000/api/story/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId, language, code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("output").textContent =
+          JSON.stringify(data, null, 2);
+        alert(data.message || "Code submitted!");
+        if (data.status === "passed") {
+          goToNextQuestion();
+        }
+      })
+      .catch(err => {
+        alert("Error submitting code!");
+      });
+    }
+
+    function goToNextQuestion() {
+      if (currentIndex + 1 < questions.length) {
+        currentIndex++;
+        loadQuestion(questions[currentIndex]);
+      } else {
+        alert("🎉 You have completed all questions in this difficulty!");
+      }
+    }
+
+    document.getElementById("runBtn").addEventListener("click", runCode);
+    document.getElementById("submitBtn").addEventListener("click", submitCode);
+    document.getElementById("nextBtn").addEventListener("click", goToNextQuestion);
+  </script>
+</body>
+</html>

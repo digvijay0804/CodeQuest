@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeClash - Multiplayer</title>
+  <link rel="stylesheet" href="codeclash.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="nav-left">
+      <h1>CodeClash</h1>
+    </div>
+    <div class="nav-right">
+      <i class="fas fa-user nav-icon" title="Profile"></i>
+      <i class="fas fa-coins nav-icon" title="Points"></i>
+      <i class="fas fa-th nav-icon" title="Dashboard"></i>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    <div class="modules-wrapper">
+
+      <!-- CREATE ROOM MODULE -->
+      <div class="module">
+        <h2>Enter Your Name</h2>
+        <input type="text" id="playerName" placeholder="Your name" />
+        <button id="createRoomBtn">Create Room</button>
+        <p class="room-code" id="roomCodeDisplay"></p>
+      </div>
+
+      <!-- JOIN ROOM MODULE -->
+      <div class="module">
+        <h2>Enter Room Code</h2>
+        <input type="text" id="roomCode" placeholder="ABC123" />
+        <button id="joinRoomBtn">Join Room</button>
+        <div class="status-box" id="status"></div>
+      </div>
+
+    </div>
+
+    <!-- START TEST BUTTON -->
+    <div class="start-btn-wrapper" id="startTestWrapper">
+      <button id="startTestBtn">🚀 Start Test</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="codeclash.js"></script>
+</body>
+</html>

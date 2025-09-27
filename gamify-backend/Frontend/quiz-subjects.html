@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizQuest - Subjects</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="quiz-page">
+
+
+  <div class="navbar">
+    <div class="nav-left">
+      <h1>CodeQuest</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Select a Subject</h2>
+    <div class="subjects">
+      <button class="subject-btn" onclick="startQuiz('oops')">OOPS Concepts</button>
+      <button class="subject-btn" onclick="startQuiz('cn')">Computer Networks</button>
+      <button class="subject-btn" onclick="startQuiz('os')">Operating System</button>
+      <button class="subject-btn" onclick="startQuiz('debugging')">Debugging</button>
+      <button class="subject-btn" onclick="startQuiz('basic')">Basic Programming</button>
+    </div>
+  </div>
+
+  <script>
+    function startQuiz(subject) {
+      window.location.href = `quiz.html?subject=${subject}`;
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeClash - Test</title>
+  <link rel="stylesheet" href="/codeclash.css" />
+</head>
+<body>
+  <!-- 🔹 Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2 class="logo">⚡ CodeClash</h2>
+    </div>
+    <div class="nav-right">
+      <span id="timer" class="timer">30:00</span>
+    </div>
+  </nav>
+
+  <!-- 🔹 Main Container -->
+  <div class="container">
+    <h1>Answer the Questions</h1>
+    <form id="quizForm" class="quiz-form"></form>
+    <button id="submitBtn" class="btn-submit">Submit</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="test.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizQuest - Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="quiz-page">
+
+  <div class="navbar">
+    <div class="nav-left">
+      <h1>CodeQuest</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 id="subject-title">Loading...</h2>
+    <form id="quiz-form">
+      <div id="quiz-container"></div>
+      <button type="submit" class="submit-btn">Submit Quiz</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const subject = urlParams.get("subject");
+    document.getElementById("subject-title").innerText = `Quiz: ${subject.toUpperCase()}`;
+
+    let questions = [];
+
+    async function loadQuestions() {
+      try {
+        const res = await fetch(`http://localhost:5000/api/questions/${subject}`);
+        questions = await res.json();
+
+        const quizContainer = document.getElementById("quiz-container");
+        quizContainer.innerHTML = "";
+
+        questions.forEach((q, index) => {
+          const qDiv = document.createElement("div");
+          qDiv.classList.add("question-block");
+
+          let optionsHtml = "";
+          q.options.forEach(opt => {
+            optionsHtml += `
+              <label>
+                <input type="radio" name="q${index}" value="${opt}">
+                ${opt}
+              </label><br>
+            `;
+          });
+
+          qDiv.innerHTML = `
+            <h3>Q${index + 1}. ${q.question}</h3>
+            ${optionsHtml}
+            <div class="feedback" id="feedback-${index}"></div>
+          `;
+          quizContainer.appendChild(qDiv);
+        });
+      } catch (err) {
+        console.error("Error loading questions:", err);
+      }
+    }
+
+    loadQuestions();
+
+    document.getElementById("quiz-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      let score = 0;
+
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const feedbackDiv = document.getElementById(`feedback-${index}`);
+
+        if (selected) {
+          if (selected.value === q.correctAnswer) {
+            score++;
+            feedbackDiv.innerHTML = `<span style="color:green;">✔ Correct</span>`;
+          } else {
+            feedbackDiv.innerHTML = `
+              <span style="color:red;">✘ Your answer: ${selected.value}</span><br>
+              <span style="color:green;">✔ Correct answer: ${q.correctAnswer}</span>
+            `;
+          }
+        } else {
+          feedbackDiv.innerHTML = `
+            <span style="color:red;">✘ Not answered</span><br>
+            <span style="color:green;">✔ Correct answer: ${q.correctAnswer}</span>
+          `;
+        }
+
+        // disable all options after submission
+        document.querySelectorAll(`input[name="q${index}"]`).forEach(input => input.disabled = true);
+      });
+
+      document.getElementById("result").innerHTML =
+        `<h3>Your Score: ${score} / ${questions.length}</h3>`;
+    });
+  </script>
+
+</body>
+</html>
