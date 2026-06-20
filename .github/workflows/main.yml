@@ -29,4 +29,4 @@ jobs:
           context: .
           push: true
           no-cache: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/CodeQuest:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/codequest:latest
