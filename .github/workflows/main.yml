@@ -26,7 +26,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: gamify-backend .
           push: true
           no-cache: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/codequest:latest
